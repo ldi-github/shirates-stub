@@ -3,15 +3,15 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     id("org.springframework.boot") version "2.2.1.RELEASE"
     id("io.spring.dependency-management") version "1.0.8.RELEASE"
-    kotlin("jvm") version "1.4.10"
+    kotlin("jvm") version "1.6.21"
     kotlin("plugin.spring") version "1.3.50"
 
     id("java")
     id("war")
 }
 
-group = "shirates.stub"
-version = "0.9-SNAPSHOT"
+group = "shirates"
+version = "0.9.0-SNAPSHOT"
 java.sourceCompatibility = JavaVersion.VERSION_11
 
 val developmentOnly by configurations.creating
