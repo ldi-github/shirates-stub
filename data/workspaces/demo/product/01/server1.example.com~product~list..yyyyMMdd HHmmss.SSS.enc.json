@@ -1,0 +1,10 @@
+{
+  "PRODUCT_LIST": [
+    {
+      "PRODUCT_NAME": "PRODUCT1",
+      "PRODUCT_CODE": "PCODE1",
+      "PRICE": "1000",
+      "URL": "https://example.com/製品1"
+    }
+  ]
+}

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Encode</title>
+    <style>
+.form-border {
+    border: 1px solid gray;
+    padding: 10px;
+}
+
+.target-data {
+    width: 95%;
+    height: 300px;
+}
+
+.button {
+    -webkit-appearance: button;
+    background-color: #FFF;
+    min-width: 70px;
+    height: 30px;
+    margin: 5px 10px 5px 10px;
+}
+
+.strong {
+    font-weight: bold;
+}
+
+
+
+
+    </style>
+</head>
+<body>
+<h1>
+    Crypt tool
+</h1>
+<div class="form-border">
+    <form action="/management/encrypt" method="post" accept-charset="UTF-8">
+        <p class="strong">
+            Plain data
+        </p>
+        <textarea name="targetData" class="target-data"></textarea>
+        <p>
+            <input type="submit" value="Encrypt" class="button">
+        </p>
+    </form>
+</div>
+<br>
+<div class="form-border">
+    <form action="/management/decrypt" method="post" accept-charset="UTF-8">
+        <p class="strong">
+            Encrypted data
+        </p>
+        <textarea name="targetData" class="target-data"></textarea>
+        <p>
+            <input type="submit" value="Decrypt" class="button">
+        </p>
+    </form>
+</div>
+
+</body>
+</html>

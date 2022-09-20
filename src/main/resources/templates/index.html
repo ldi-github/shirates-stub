@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Menu</title>
+
+    <link rel="stylesheet" href="./management/styles/dataPatternChanger.css">
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script type="text/javascript" src="./index.js"></script>
+
+    <style>
+        #source-url {
+            width: 800px;
+        }
+
+        #dest-filename {
+            width: 800px;
+            background-color: whitesmoke;
+        }
+
+        .label1 {
+            width: 100px;
+            display: inline-block;
+        }
+
+        .bold {
+            font-weight: bold;
+        }
+
+
+    </style>
+</head>
+<body>
+
+<h1>shirates-stub</h1>
+
+<br>
+
+<h2>Management pages</h2>
+<p>
+    <a href="/management/dataPatternChanger" target="_blank">Data pattern changer</a>
+</p>
+<p>
+    <a href="/management/cryptTool" target="_blank">Crypt tool</a>
+</p>
+
+<br>
+<br>
+
+<h2>Utilities</h2>
+<div class="form-border display-table-cell">
+    <span class="label-margin-right bold">Local storage</span>
+    <button id="clearLocalStorageButton" class="display-table-cell label-margin-right ">Clear</button>
+</div>
+<br>
+<div class="form-border display-table-cell">
+    <span class="label-margin-right bold">URL -> Stub file name converter</span><br>
+    <br>
+    <label>
+        <input type="radio" id="plain-button" name="encode" value="plain" checked="checked">Plain
+    </label>
+    <label>
+        <input type="radio" id="enc-button" name="encode" value="enc">Enc
+    </label>
+    <br>
+    <br>
+    <span class="label1">URL</span>
+    <input type="text" id="source-url">
+    <br>
+    <span class="label1">File name</span>
+    <input type="text" id="dest-filename" readonly>
+</div>
+
+</body>
+</html>

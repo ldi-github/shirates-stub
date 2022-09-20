@@ -1,0 +1,9 @@
+{
+  "keyFile": "src/test/data/shirates/stub/models/StubConfigTest/config/keys/staging.keys.json",
+  "workspaces": "src/test/data/shirates/stub/models/StubConfigTest/workspaces",
+  "workspaceName": "workspace1",
+  "outputRequestBody": "false",
+  "trace": "false",
+  "templateFunction": "false"
+
+}

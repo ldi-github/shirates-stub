@@ -1,0 +1,299 @@
+package shirates.stub.models
+
+import com.google.gson.GsonBuilder
+import org.springframework.boot.json.GsonJsonParser
+import org.springframework.http.HttpStatus
+import shirates.stub.commons.logging.Logger
+import shirates.stub.commons.utilities.ApiNameUtil
+import shirates.stub.commons.utilities.StubFileNameUtil
+import shirates.stub.commons.utilities.UrlValueEncodeUtil
+import shirates.stub.entities.HttpException
+import shirates.stub.entities.StubData
+import shirates.stub.entities.StubFileItem
+import shirates.stub.entities.UrlDataPattern
+import java.io.File
+import java.nio.charset.StandardCharsets
+import java.nio.file.Files
+import java.nio.file.Paths
+import java.util.AbstractMap.SimpleEntry
+import javax.servlet.http.HttpServletRequest
+
+/**
+ * StubDataManager
+ */
+class StubDataManager(var stubConfig: StubConfig) {
+
+    companion object {
+
+        lateinit var instance: StubDataManager
+
+        /**
+         * setup
+         */
+        fun setup(stubConfig: StubConfig): StubDataManager {
+            this.instance = StubDataManager(stubConfig)
+            this.instance.setAllUrlTo("default")
+            this.instance.saveStartupDataPatternMap()
+            return this.instance
+        }
+
+        /**
+         * resetStubDataManager
+         */
+        fun resetStubDataManager() {
+            setup(StubConfig.instance)
+        }
+    }
+
+    init {
+
+    }
+
+    /**
+     * properties
+     */
+
+    /**
+     * defaultDataPatternName
+     */
+    var defaultDataPatternName: String = "default"
+
+    /**
+     * startupDataPatternMap
+     */
+    var startupDataPatternMap: MutableMap<String, String> = HashMap()
+
+    /**
+     * dataPatternMap
+     */
+    var dataPatternMap: MutableMap<String, String> = HashMap()
+
+    /**
+     * dataPatternMapList
+     */
+    val dataPatternMapList: List<SimpleEntry<String, String>>
+        get() {
+
+            val keys = dataPatternMap.keys.sortedBy { it }.toList()
+            val list = ArrayList<SimpleEntry<String, String>>()
+
+            for (key in keys) {
+                val entry = SimpleEntry<String, String>(key, dataPatternMap[key])
+                list.add(entry)
+            }
+
+            return list
+        }
+
+    /**
+     * functions
+     */
+
+    /**
+     * dsaveStartupDataPatternMap
+     */
+    fun saveStartupDataPatternMap() {
+
+        startupDataPatternMap.clear()
+        startupDataPatternMap.putAll(dataPatternMap)
+    }
+
+    /**
+     * resumeStartupDataPatternMap
+     */
+    fun resumeStartupDataPatternMap() {
+
+        dataPatternMap.clear()
+        dataPatternMap.putAll(startupDataPatternMap)
+    }
+
+    /**
+     * getStubFileList
+     */
+    fun getStubFileList(): List<StubFileItem> {
+
+        val list = mutableListOf<StubFileItem>()
+        val files = File(stubConfig.workspaceDir).walkTopDown().maxDepth(100)
+            .filter { !it.isHidden && !it.isDirectory }
+        for (file in files) {
+            val item = StubFileItem(file)
+            if (item.urlPath != "") {
+                list.add(item)
+            }
+        }
+        return list
+    }
+
+    /**
+     * setDataPatternName
+     */
+    fun setDataPatternName(urlPath: String, dataPatternName: String) {
+
+        if (canSetDataPattern(urlPath, dataPatternName)) {
+            val urlPathEndsWithSlash = "$urlPath/"
+            if (dataPatternMap.containsKey(urlPathEndsWithSlash)) {
+                dataPatternMap[urlPathEndsWithSlash] = dataPatternName
+            } else {
+                dataPatternMap[urlPath] = dataPatternName
+            }
+            Logger.info("\"$urlPath\" -> \"$dataPatternName\"")
+        } else {
+            throw IllegalArgumentException("Could not set dataPattern to urlPath. (dataPatternName=$dataPatternName, urlPath=$urlPath)")
+        }
+    }
+
+    /**
+     * getActiveDataPatternName
+     */
+    fun getActiveDataPatternName(urlPath: String): String {
+
+        val dataPatternName: String = dataPatternMap[urlPath] ?: ""
+        return dataPatternName
+    }
+
+    /**
+     * getUrlList
+     */
+    fun getUrlList(): List<String> {
+
+        val list = getStubFileList()
+            .map { it.urlPath }
+            .distinctBy { it }
+            .sortedBy { it }
+        return list
+    }
+
+    /**
+     * getUrlDataPatternList
+     */
+    fun getUrlDataPatternList(): List<UrlDataPattern> {
+
+        val list = getStubFileList()
+            .map { UrlDataPattern(it.urlPath, it.dataPatternName) }
+            .distinctBy { it }
+            .sortedBy { "${it.urlPath}|${it.dataPatternName}" }
+        return list
+    }
+
+    /**
+     * setAllUrlTo
+     */
+    fun setAllUrlTo(dataPatternName: String) {
+
+        Logger.info("Setting urlPath -> dataPatternName")
+
+        val urlList = getUrlList()
+        for (urlPath in urlList) {
+            setDataPatternName(urlPath, dataPatternName)
+        }
+    }
+
+    /**
+     * canSetDataPattern
+     */
+    fun canSetDataPattern(urlPath: String, dataPatternName: String): Boolean {
+
+        val urlDataPattern = getUrlDataPatternList()
+            .filter { (it.urlPath == urlPath || it.urlPath == "$urlPath/") && it.dataPatternName == dataPatternName }
+            .firstOrNull()
+        val result = urlDataPattern != null
+        return result
+    }
+
+    /**
+     * setAllUrlToDefault
+     */
+    fun setAllUrlToDefault() {
+
+        setAllUrlTo(defaultDataPatternName)
+    }
+
+    /**
+     * getDataFilePathFromUrl
+     */
+    fun getDataFilePathFromUrl(url: String): String? {
+
+        val dataPatternName = this.getActiveDataPatternName(url)
+
+        val wsDir = "${stubConfig.workspaceDir}/$dataPatternName".replace("//", "/")
+        if (!File(wsDir).exists()) {
+            Logger.warn("Data pattern file not found corresponding to the url(url=$url, dataPatternName=$dataPatternName)")
+            return null
+        }
+        return StubFileNameUtil.findMatchedFile(wsDir, url)
+    }
+
+    /**
+     * getStubData
+     */
+    fun getStubData(
+        request: HttpServletRequest,
+    ): StubData {
+
+        val urlPath = request.requestURI
+        val parameterNames = request.parameterNames.toList()
+        val plainAndFormat = parameterNames.contains("0")
+        val hasFormat = parameterNames.contains("format") || plainAndFormat
+        val asPlain = parameterNames.contains("plain") || plainAndFormat
+        val stubData = getStubData(urlPath = urlPath, format = hasFormat)
+
+        if (asPlain) {
+            stubData.encData = stubData.data
+        }
+
+        return stubData
+    }
+
+    /**
+     * getStubData
+     */
+    fun getStubData(
+        urlPath: String,
+        format: Boolean = true,
+        urlValueEncode: Boolean = StubConfig.instance.urlValueEncode
+    ): StubData {
+        val stubData = StubData()
+
+        val filePath = getDataFilePathFromUrl(urlPath)
+        if (filePath.isNullOrBlank()) {
+            return stubData
+        }
+        stubData.filePath = filePath
+        stubData.apiName = ApiNameUtil.getApiName(urlPath)
+        stubData.dataPattern = getActiveDataPatternName(urlPath)
+        Logger.info("file=$filePath", apiName = stubData.apiName, dataPattern = stubData.dataPattern)
+
+        var text = Files.readString(Paths.get(filePath), StandardCharsets.UTF_8)
+
+        if (urlValueEncode) {
+            text = UrlValueEncodeUtil.replace(input = text)
+        }
+
+        stubData.data = text
+
+        // Encrypt
+        if (filePath.contains(".enc.")) {
+            stubData.encData = Crypt.encrypt(stubData.data)
+        }
+
+        // Error
+        if (filePath.contains(".error")) {
+            filePath.split(".")
+                .find { it.startsWith("error") }
+                ?.substring("error".length)
+                ?.let { statusCode ->
+                    throw HttpException(HttpStatus.valueOf(statusCode.toInt()))
+                }
+        }
+
+        if (format) {
+            val jso = GsonJsonParser().parseMap(stubData.data)
+            val gson = GsonBuilder().setPrettyPrinting().create()
+            stubData.data = gson.toJson(jso)
+        }
+
+        return stubData
+    }
+
+}
+

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Data pattern changer</title>
+    <style>
+    </style>
+    <link rel="stylesheet" href="./styles/dataPatternChanger.css">
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script type="text/javascript" src="./compositeLocalStorage.js"></script>
+    <script type="text/javascript" src="./dataPatternChanger.js"></script>
+
+</head>
+<body>
+<header>
+    <h1>
+        Data pattern changer
+    </h1>
+    <div class="display-table">
+        <div class="space-16px display-table-cell"></div>
+        <div class="form-border display-table-cell">
+            <span class="label-margin-right">Grouping</span>
+            <button id="openAllButton" class="display-table-cell label-margin-right">Open all</button>
+            <button id="closeAllButton" class="display-table-cell label-margin-right">Close all</button>
+        </div>
+        <div class="space-16px display-table-cell"></div>
+        <div class="form-border display-table-cell">
+            <span class="label-margin-right">Bookmark filter</span>
+            <button id="bookmarkFilterButton"
+                    class="display-table-cell label-margin-right bookmark-filter-button">OFF
+            </button>
+        </div>
+    </div>
+</header>
+<div class="content">
+    <table id="main-table" class="table">
+        <tr class="headerrow">
+            <th>B</th>
+            <th>API Name</th>
+            <th></th>
+            <th>URL-Path</th>
+            <th>Data pattern name</th>
+            <th></th>
+        </tr>
+        <tr th:each="item:${list}"
+            th:data-api-name="${item.apiName}"
+            th:data-sub-no="${item.subNo}"
+            th:data-url-path="${item.urlPath}"
+            th:data-data-pattern-name="${item.dataPatternName}"
+            th:data-active-pattern="${item.activeDataPatternName}"
+            th:data-is-open="true"
+        >
+            <td th:class="${item.cssClass}">
+                <button class="bookmark-button">B</button>
+            </td>
+            <td th:class="${item.cssClass}">
+                <span th:text="${item.apiNameDisplayed}"></span>
+            </td>
+            <td th:class="${item.cssClass}">
+                <button class="open-close-button">toggle</button>
+            </td>
+            <td th:class="${item.cssClass}">
+                <a data-url-path-normal
+                   th:href="${item.urlPath}" th:text="${item.urlPathDisplayed}"></a>
+                <span>    </span>
+                <a data-url-path-decrypted
+                   th:href="${item.urlPathDecrypted}" th:text="${item.urlPathDecryptedDisplayed}"></a>
+            </td>
+            <td id="data-pattern-name" th:class="${item.cssClass}">
+                <a id="set-data-pattern"
+                   th:href="@{/management/changeDataPattern(urlPath=${item.urlPath},dataPatternName=${item.dataPatternName})}"
+                   th:data-data-pattern-name="${item.dataPatternName}"
+                   th:text="${item.dataPatternName}"></a>
+                <span id="active-data-pattern" th:text="${item.activeDataPatternName}"></span>
+            </td>
+            <td th:class="${item.cssClass}">
+                <button class="open-close-button">toggle</button>
+            </td>
+        </tr>
+    </table>
+</div>
+
+</body>
+
+</html>

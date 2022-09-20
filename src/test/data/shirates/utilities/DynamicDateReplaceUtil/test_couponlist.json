@@ -1,0 +1,9 @@
+{
+  "NOW"         : "{date:yyyyMMddHHmmss}",
+  "TODAY"       : "{date:yyyyMMdd}",
+  "YESTERDAY"   : "{date(-1):yyyyMMdd}",
+  "5DAYS AGO"   : "{date(-5):yyyyMMdd}",
+  "6DAYS AGO"   : "{date(-6):yyyyMMdd}",
+  "TOMORROW"    : "{date(+1):yyyyMMdd",
+  "2DAYS LATER" : "{date(+2):yyyyMMdd"
+}

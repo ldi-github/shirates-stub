@@ -1,0 +1,11 @@
+{
+  "workspaces": "data/workspaces",
+  "workspaceName": "demo",
+  "keyFile": "data/config/keys/staging.keys.json",
+
+  "#urlValueEncode": "true",
+  "#outputRequestBody": "false",
+  "#trace": "true",
+
+  "#[Note]: Restart process to for changes to take effect.": ""
+}
