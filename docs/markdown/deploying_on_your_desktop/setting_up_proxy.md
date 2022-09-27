@@ -11,7 +11,7 @@ You should set up **proxy server** and **hosts** on your machine as follows.
 
 ## Example
 
-1. Set up a proxy server on your machine. `192.168.10.5` is IP address leased by DHCP server.
+1. Set up a proxy server on your machine. `192.168.10.x` is IP address leased by DHCP server.
 
 
 2. Bind loopback address `127.0.0.1` to stub1 in hosts file.

@@ -5,7 +5,7 @@ You can control shirates-stub with management APIs.
 | Method | Url-Path(args)                                       | description                                    |
 |:-------|:-----------------------------------------------------|:-----------------------------------------------|
 | GET    | /management/resetStubDataManager                     | Reset stub-data-manager                        |
-| GET    | /management/listDataPattern                          | Returns list of data pattern                   |
+| GET    | /management/listDataPattern                          | Returns a list of data pattern                 |
 | GET    | /management/getDataPattern(urlPath)                  | Returns data pattern name bound to the urlPath |
 | GET    | /management/setDataPattern(urlPath, dataPatternName) | Binds dataPatternName to urlPath               |
 
