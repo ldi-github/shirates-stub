@@ -99,19 +99,21 @@ class StubDataManager(var stubConfig: StubConfig) {
         /**
          * removeInstance
          */
-        fun removeInstance(instanceKey: String) {
+        fun removeInstance(instanceKey: String): String {
 
             if (instanceMap.containsKey(instanceKey).not()) {
-                return
+                return "Has no entry."
             }
             instanceMap.remove(instanceKey)
 
             if (instanceProfileMap.containsKey(instanceKey).not()) {
-                return
+                return "Has no entry."
             }
             instanceProfileMap.remove(instanceKey)
 
             saveInstanceProfileMap()
+
+            return "Removed."
         }
 
         /**
@@ -200,8 +202,15 @@ class StubDataManager(var stubConfig: StubConfig) {
         /**
          * resetStubDataManager
          */
-        fun resetStubDataManager(instanceKey: String) {
+        fun resetStubDataManager(instanceKey: String): String {
+
+            if (instanceMap.containsKey(instanceKey).not()) {
+                return "Has no entry."
+            }
+
             setup(instanceKey = instanceKey)
+
+            return "Reset executed."
         }
     }
 
@@ -301,7 +310,7 @@ class StubDataManager(var stubConfig: StubConfig) {
             } else {
                 dataPatternMap[urlPath] = dataPatternName
             }
-            Logger.info("\"$urlPath\" -> \"$dataPatternName\"")
+            Logger.info(message = "\"$urlPath\" -> \"$dataPatternName\"", instanceKey = this.instanceKey)
         } else {
             throw IllegalArgumentException("Could not set dataPattern to urlPath. (dataPatternName=$dataPatternName, urlPath=$urlPath)")
         }

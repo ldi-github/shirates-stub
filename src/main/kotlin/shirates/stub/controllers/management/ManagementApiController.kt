@@ -33,11 +33,11 @@ class ManagementApiController {
     @GetMapping("/getInstanceInfo")
     fun getInstanceInfo(
         request: HttpServletRequest,
-        @RequestParam("profileOrInstanceKeyPrefix") profileOrInstanceKeyPrefix: String?
+        @RequestParam("profile") profile: String?
     ): String {
 
         val gson = GsonBuilder().setPrettyPrinting().create()
-        return gson.toJson(StubDataManager.getInstanceJson(profileOrInstanceKeyPrefix = profileOrInstanceKeyPrefix))
+        return gson.toJson(StubDataManager.getInstanceJson(profileOrInstanceKeyPrefix = profile))
     }
 
     @ApiDescription("getInstanceProfileMap(API)")
@@ -50,27 +50,34 @@ class ManagementApiController {
         return gson.toJson(StubDataManager.instanceProfileMap)
     }
 
-    @ApiDescription("removeInstance(API)")
-    @GetMapping("/removeInstance")
-    fun removeInstance(
-        request: HttpServletRequest,
-        @RequestParam("profileOrInstanceKeyPrefix") profileOrInstanceKeyPrefix: String
-    ): String {
-
-        val instanceKey = StubDataManager.getInstanceKey(profileOrInstanceKeyPrefix = profileOrInstanceKeyPrefix)
-        StubDataManager.removeInstance(instanceKey = instanceKey)
-
-        return ""
-    }
-
     @ApiDescription("resetInstance(API)")
     @GetMapping("/resetInstance")
     fun resetInstance(
         request: HttpServletRequest,
-        @RequestParam("profileOrInstanceKeyPrefix") profileOrInstanceKeyPrefix: String?
-    ) {
-        val instanceKey = StubDataManager.getInstanceKey(profileOrInstanceKeyPrefix = profileOrInstanceKeyPrefix)
-        StubDataManager.resetStubDataManager(instanceKey = instanceKey)
+        @RequestParam("profile") profile: String?
+    ): String {
+
+        val instanceKey = StubDataManager.getInstanceKey(profileOrInstanceKeyPrefix = profile)
+        if (instanceKey.isBlank() && profile.isNullOrBlank().not()) {
+            throw IllegalArgumentException("Invalid parameter. (profile=$profile)")
+        }
+        val result = StubDataManager.resetStubDataManager(instanceKey = instanceKey)
+        return "$result (profile=$profile)"
+    }
+
+    @ApiDescription("removeInstance(API)")
+    @GetMapping("/removeInstance")
+    fun removeInstance(
+        request: HttpServletRequest,
+        @RequestParam("profile") profile: String
+    ): String {
+
+        val instanceKey = StubDataManager.getInstanceKey(profileOrInstanceKeyPrefix = profile)
+        if (instanceKey.isBlank()) {
+            return "Has no entry. (profile=$profile)"
+        }
+        val result = StubDataManager.removeInstance(instanceKey = instanceKey)
+        return "$result (profile=$profile)"
     }
 
     @ApiDescription("resetDataPattern(API)")
@@ -80,7 +87,10 @@ class ManagementApiController {
         @RequestParam("profile") profile: String?
     ) {
         val instanceKey = StubDataManager.getInstanceKey(profileOrInstanceKeyPrefix = profile)
-        Logger.info(message = "データパターンをリセットします。", instanceKey = instanceKey)
+        if (instanceKey.isBlank() && profile.isNullOrBlank().not()) {
+            throw IllegalArgumentException("Invalid parameter. (profile=$profile)")
+        }
+        Logger.info(message = "Resetting data pattern.", instanceKey = instanceKey)
         DataPattern.resetDataPattern(instanceKey = instanceKey)
     }
 
@@ -92,6 +102,9 @@ class ManagementApiController {
     ): String {
 
         val instanceKey = StubDataManager.getInstanceKey(profileOrInstanceKeyPrefix = profile)
+        if (instanceKey.isBlank() && profile.isNullOrBlank().not()) {
+            throw IllegalArgumentException("Invalid parameter. (profile=$profile)")
+        }
         val list = DataPattern.listDataPattern(instanceKey = instanceKey)
         val gson = GsonBuilder().setPrettyPrinting().create()
         return gson.toJson(list)
@@ -107,9 +120,12 @@ class ManagementApiController {
     ): String {
 
         if (urlPathOrApiName == null)
-            throw IllegalArgumentException("Specify urlPath or apiName.")
+            throw IllegalArgumentException("Specify urlPathOrApiName.")
 
         val instanceKey = StubDataManager.getInstanceKey(profileOrInstanceKeyPrefix = profile)
+        if (instanceKey.isBlank() && profile.isNullOrBlank().not()) {
+            throw IllegalArgumentException("Invalid parameter. (profile=$profile)")
+        }
         try {
             return DataPattern.setDataPattern(
                 instanceKey = instanceKey,
@@ -133,6 +149,9 @@ class ManagementApiController {
     ): String {
 
         val instanceKey = StubDataManager.getInstanceKey(profileOrInstanceKeyPrefix = profile)
+        if (instanceKey.isBlank() && profile.isNullOrBlank().not()) {
+            throw IllegalArgumentException("Invalid parameter. (profile=$profile)")
+        }
         return DataPattern.getDataPattern(instanceKey = instanceKey, urlPathOrApiName = urlPathOrApiName)
     }
 

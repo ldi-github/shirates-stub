@@ -1,118 +1,44 @@
 # Management APIs
 
-You can control shirates-stub with management APIs.
+You can control shirates-stub with management APIs.<br>
 
-| Method | Url-Path(args)                                       | description                                    |
-|:-------|:-----------------------------------------------------|:-----------------------------------------------|
-| GET    | /management/resetStubDataManager                     | Reset stub-data-manager                        |
-| GET    | /management/listDataPattern                          | Returns a list of data pattern                 |
-| GET    | /management/getDataPattern(urlPath)                  | Returns data pattern name bound to the urlPath |
-| GET    | /management/setDataPattern(urlPath, dataPatternName) | Binds dataPatternName to urlPath               |
+## Instance APIs
 
-<br>
+| Method | Url-Path(args)                                     | Description                                       |
+|:-------|:---------------------------------------------------|:--------------------------------------------------|
+| GET    | /management/registerInstance(instanceKey, profile) | Set up stub instance for instanceKey and profile. |
+| GET    | /management/getInstanceInfo(profile)               | Gets instance info.                               |
+| GET    | /management/getInstanceProfileMap()                | Gets instance to profile map.                     |
+| GET    | /management/resetInstance(profile)                 | Reset instance.                                   |
+| GET    | /management/removeInstance(profile)                | Remove instance.                                  |
 
-## resetStubDataManager
+## Data Pattern APIs
 
-### Usage
+| Method | Url-Path(args)                                                         | Description                                    |
+|:-------|:-----------------------------------------------------------------------|:-----------------------------------------------|
+| GET    | /management/resetDataPattern(profile)                                  | Reset data pattern.                            |
+| GET    | /management/listDataPattern(profile)                                   | Returns a list of data patterns.               |
+| GET    | /management/setDataPattern(profile, urlPathOrApiName, dataPatternName) | Binds dataPatternName to urlPath               |
+| GET    | /management/getDataPattern(profile, urlPathOrApiName)                  | Returns data pattern name bound to the urlPath |
+| GET    | /management/encode(targetData)                                         | For encoding test.                             |
+| GET    | /management/decode(targetData)                                         | For decoding test.                             |
 
-`http://stub1/management/resetStubDataManager`
+## Other APIs
 
-### Console output
-
-```
-lineNo	logDateTime	[logType]	<threadId>	apiName	{dataPattern}	elapsed(ms)	message
-24	2022/01/20 00:17:09.901	[INFO]	<35>	resetStubDataManager(API)	{}	-	GET http://stub1/management/resetStubDataManager
-25	2022/01/20 00:17:09.902	[INFO]	<35>	-	{}	-	Setting urlPath -> dataPatternName
-26	2022/01/20 00:17:09.908	[INFO]	<35>	-	{}	-	"/customer/list" -> "default"
-27	2022/01/20 00:17:09.911	[INFO]	<35>	-	{}	-	"/product/list" -> "default"
-28	2022/01/20 00:17:09.913	[INFO]	<35>	-	{}	-	"/supplier/list" -> "default"
-```
-
-<br>
-
-## listDataPattern
-
-### Usage
-
-```http://stub1/management/listDataPattern```
-
-### Response
-
-```
-[{"urlPath":"/customer/list","dataPatternName":"default"},{"urlPath":"/product/list","dataPatternName":"default"},{"urlPath":"/supplier/list","dataPatternName":"default"}]
-```
+| Method | Url-Path(args)                                                         | Description        |
+|:-------|:-----------------------------------------------------------------------|:-------------------|
+| GET    | /management/encode(targetData)                                         | For encoding test. |
+| GET    | /management/decode(targetData)                                         | For decoding test. |
 
 <br>
 
-## getDataPattern
-
-### Usage
-
-```http://stub1/management/getDataPattern?urlPath=/product/list```
-
-### Response
-
-```
-default
-```
+_profile_ is for multiple instance mode. When _profile_ is omitted, default instance is used.
 
 <br>
 
-## setDataPattern
-
-### Usage
-
-```http://stub1/management/setDataPattern?urlPath=/product/list&dataPatternName=product/02```
-
-### Response
-
-```
-urlPath="/product/list"
-dataPatternName="product/02"
-dataFile=/Users/n.senba/dev/shirates-stub/data/workspaces/demo/product/02/server1.example.com~product~list..yyyyMMdd HHmmss.SSS.enc.json
-```
-
-### Using  urlPath as API Name
-
-The value of urlPath may be **API name**. For example,
-
-```http://stub1/management/setDataPattern?urlPath=Product%20list&dataPatternName=product/02```
-
-In this case `ProductList` is not url-path, but API name of the urlPath(`/product/list`) annotated with **
-@ApiDescription** in ProductController.
-
-#### ProductController
-
-```kotlin
-    @ApiDescription("ProductList")
-    @GetMapping("/product/list")
-    fun getProducts(request: HttpServletRequest): String {
-        val data = getStubData(request, restTemplate)
-        return data.toString()
-    }
-```
-
-<br>
-
-## getDataPattern
-
-### Usage
-
-```http://stub1/management/getDataPattern?urlPath=/product/list```
-
-### Response
-
-```
-product/02
-```
-
-### Using  urlPath as API Name
-
-The value of urlPath may be **API name**. See **setDataPattern**.
-
-
-<br>
-
+- [Using data pattern APIs](../using_apis/using_data_pattern_apis.md)
+- [Using multiple instances](../using_apis/using_multiple_instances.md)
+- [Using APIs for multiple instances](../using_apis/using_apis_for_multiple_instances.md)
 - [index](../index.md)
 
 <br>
