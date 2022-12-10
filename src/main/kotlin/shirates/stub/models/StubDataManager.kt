@@ -163,16 +163,20 @@ class StubDataManager(var stubConfig: StubConfig) {
         return list
     }
 
+    private var _urlDataPatternList: List<UrlDataPattern>? = null
+
     /**
      * getUrlDataPatternList
      */
-    fun getUrlDataPatternList(): List<UrlDataPattern> {
+    fun getUrlDataPatternList(forceRefresh: Boolean = false): List<UrlDataPattern> {
 
-        val list = getStubFileList()
-            .map { UrlDataPattern(it.urlPath, it.dataPatternName) }
-            .distinctBy { it }
-            .sortedBy { "${it.urlPath}|${it.dataPatternName}" }
-        return list
+        if (_urlDataPatternList == null || forceRefresh) {
+            _urlDataPatternList = getStubFileList()
+                .map { UrlDataPattern(it.urlPath, it.dataPatternName) }
+                .distinctBy { it }
+                .sortedBy { "${it.urlPath}|${it.dataPatternName}" }
+        }
+        return _urlDataPatternList!!
     }
 
     /**

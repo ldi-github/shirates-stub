@@ -62,7 +62,7 @@ class ManagementPageController {
         val stubDataManager = StubDataManager.instance
         val list = mutableListOf<DataPatternSettingItem>()
 
-        val group = stubDataManager.getUrlDataPatternList().groupBy { it.urlPath }
+        val group = stubDataManager.getUrlDataPatternList(forceRefresh = true).groupBy { it.urlPath }
         val keys = group.keys
         for ((groupName, items) in group) {
             items.forEachIndexed { index, item ->
