@@ -1,5 +1,6 @@
 package shirates.stub.models
 
+import com.google.gson.GsonBuilder
 import shirates.stub.commons.logging.Logger
 import shirates.stub.commons.utilities.ApiNameUtil
 import shirates.stub.entities.UrlDataPattern
@@ -9,69 +10,87 @@ object DataPattern {
     /**
      * setDataPattern
      */
-    fun setDataPattern(urlPathOrApiName: String, dataPatternName: String): String {
+    fun setDataPattern(
+        instanceKey: String,
+        urlPathOrApiName: String,
+        dataPatternName: String
+    ): String {
 
-        val path = ApiNameUtil.getUrlPath(urlPathOrApiName)
-        val m = StubDataManager.instance
-        m.setDataPatternName(path, dataPatternName)
+        val urlPath = ApiNameUtil.getUrlPath(urlPathOrApiName)
+        val m = StubDataManager.getInstance(profileOrInstanceKeyPrefix = instanceKey)
+        m.setDataPatternName(urlPath = urlPath, dataPatternName = dataPatternName)
 
-        val sb = StringBuilder()
-        sb.append("urlPath=\"$path\"\ndataPatternName=\"$dataPatternName\"\n")
-        val filePath = m.getDataFilePathFromUrl(path)
+        val map = mutableMapOf<String, String>()
+        map["urlPath"] = urlPath
+        map["dataPatternName"] = dataPatternName
+        val filePath = m.getDataFilePathFromUrl(urlPath)
         if (filePath == null) {
-            sb.append("data file not found.\n")
+            map["message"] = "data file not found."
         } else {
-            sb.append("dataFile=$filePath\n")
+            map["message"] = "data file found."
         }
 
-        return sb.toString()
+        return GsonBuilder().setPrettyPrinting().create().toJson(map)
     }
 
     /**
      * getDataPattern
      */
-    fun getDataPattern(urlPathOrApiName: String): String {
+    fun getDataPattern(
+        instanceKey: String,
+        urlPathOrApiName: String
+    ): String {
 
         val urlPath = ApiNameUtil.getUrlPath(urlPathOrApiName = urlPathOrApiName)
-        return StubDataManager.instance.dataPatternMap.get(urlPath) ?: ""
+        return StubDataManager.getInstance(profileOrInstanceKeyPrefix = instanceKey).dataPatternMap.get(urlPath) ?: ""
     }
 
     /**
      * setAllUrlTo
      */
-    fun setAllUrlTo(dataPatternName: String) {
+    fun setAllUrlTo(
+        instanceKey: String,
+        dataPatternName: String
+    ) {
 
-        StubDataManager.instance.setAllUrlTo(dataPatternName)
+        StubDataManager.getInstance(profileOrInstanceKeyPrefix = instanceKey).setAllUrlTo(dataPatternName)
     }
 
     /**
      * setAllUrlToDefault
      */
-    fun setAllUrlToDefault() {
+    fun setAllUrlToDefault(
+        instanceKey: String
+    ) {
 
-        StubDataManager.instance.setAllUrlToDefault()
+        StubDataManager.getInstance(profileOrInstanceKeyPrefix = instanceKey).setAllUrlToDefault()
     }
 
     /**
      * resetDataPattern
      */
-    fun resetDataPattern() {
+    fun resetDataPattern(
+        instanceKey: String
+    ) {
 
-        StubDataManager.instance.resumeStartupDataPatternMap()
-        for (m in StubDataManager.instance.dataPatternMap) {
+        val stubDataManager = StubDataManager.getInstance(profileOrInstanceKeyPrefix = instanceKey)
+        stubDataManager.resumeStartupDataPatternMap()
+        for (m in stubDataManager.dataPatternMap) {
             val urlPath = m.key
             val dataPatternName = m.value
-            Logger.info("\"$urlPath\" -> \"$dataPatternName\"")
+            Logger.info(message = "\"$urlPath\" -> \"$dataPatternName\"", instanceKey = instanceKey)
         }
     }
 
     /**
      * listDataPattern
      */
-    fun listDataPattern(): List<UrlDataPattern> {
+    fun listDataPattern(
+        instanceKey: String
+    ): List<UrlDataPattern> {
 
-        val m = StubDataManager.instance
-        return m.dataPatternMapList.map { e -> UrlDataPattern(e.key, e.value) }.toList()
+        val m = StubDataManager.getInstance(profileOrInstanceKeyPrefix = instanceKey)
+        return m.dataPatternMapList.map({ e -> UrlDataPattern(e.key, e.value) }).toList()
     }
 
 }

@@ -33,13 +33,15 @@ fun main(args: Array<String>) {
 
     val stubConfigFile = args.firstOrNull()
     StubConfig.setup(stubConfigFile)
-    StubDataManager.setup(StubConfig.instance)
+    StubDataManager.setup(instanceKey = "")
 
     val controllers = mutableListOf<KClass<*>>()
     controllers.add(ManagementApiController::class)
     controllers.add(ManagementPageController::class)
     controllers.addAll(appContext.getBeansWithAnnotation(StubServer::class.java).map { it.value::class })
     ApiNameUtil.setupApiNameMap(controllers = controllers)
+
+    StubDataManager.registerInstanceFromFile()
 
     val config = StubConfig.instance
 

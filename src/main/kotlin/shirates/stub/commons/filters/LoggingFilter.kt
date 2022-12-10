@@ -2,6 +2,7 @@ package shirates.stub.commons.filters
 
 import org.apache.catalina.connector.RequestFacade
 import org.springframework.stereotype.Component
+import qmtest.stub.commons.extensions.getAgentId
 import shirates.stub.commons.logging.Logger
 import shirates.stub.commons.utilities.ApiNameUtil
 import shirates.stub.models.StubConfig
@@ -26,6 +27,18 @@ class LoggingFilter : Filter {
                 return
             }
 
+            /**
+             * Determine instanceKey
+             */
+            var instanceKey = req.getAgentId()
+            if (instanceKey.isBlank()) {
+                val profile = req.getParameter("profile")
+                instanceKey = StubDataManager.getInstanceKey(profileOrInstanceKeyPrefix = profile)
+            }
+
+            /**
+             * Output log
+             */
             val q = req.parameterMap.map {
                 val value = it.value.firstOrNull()
                 if (value.isNullOrBlank()) {
@@ -35,10 +48,13 @@ class LoggingFilter : Filter {
                 }
             }.joinToString("&")
             val query = if (q.isBlank()) "" else "?$q"
+            val stubDataManager = StubDataManager.getInstance(profileOrInstanceKeyPrefix = instanceKey)
+            val activeDataPatternName = stubDataManager.getActiveDataPatternName(urlPath = url)
             Logger.info(
                 message = "${request.method} $url$query",
+                instanceKey = stubDataManager.instanceKey,
                 apiName = ApiNameUtil.getApiName(req.servletPath),
-                dataPattern = StubDataManager.instance.getActiveDataPatternName(urlPath = url)
+                dataPattern = activeDataPatternName
             )
 
             if (StubConfig.instance.outputRequestBody) {

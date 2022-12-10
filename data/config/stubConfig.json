@@ -7,5 +7,9 @@
   "#outputRequestBody": "false",
   "#trace": "true",
 
+  "#Http header name for agent id (for multiple stub instances mode)": "",
+  "agentIdHeaderName": "agentId",
+
+
   "#[Note]: Restart process to for changes to take effect.": ""
 }

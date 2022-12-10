@@ -9,6 +9,7 @@ import shirates.stub.commons.annotaions.ApiDescription
 import shirates.stub.commons.utilities.ApiNameUtil
 import shirates.stub.models.DataPattern
 import shirates.stub.models.StubDataManager
+import javax.servlet.http.HttpServletRequest
 
 @Controller
 @RequestMapping("/management")
@@ -57,9 +58,17 @@ class ManagementPageController {
 
     @ApiDescription("dataPatternChanger(Page)")
     @GetMapping("/dataPatternChanger")
-    fun dataPatternChanger(model: Model): String {
+    fun dataPatternChanger(
+        request: HttpServletRequest,
+        model: Model,
+        @RequestParam("profile") profile: String?
+    ): String {
 
-        val stubDataManager = StubDataManager.instance
+        val instanceKey = StubDataManager.getInstanceKey(profileOrInstanceKeyPrefix = profile)
+        if (profile != null && instanceKey == "") {
+            throw IllegalArgumentException("profile not registered. (profile=$profile)")
+        }
+        val stubDataManager = StubDataManager.getInstance(profileOrInstanceKeyPrefix = instanceKey)
         val list = mutableListOf<DataPatternSettingItem>()
 
         val group = stubDataManager.getUrlDataPatternList(forceRefresh = true).groupBy { it.urlPath }
@@ -88,20 +97,43 @@ class ManagementPageController {
     @ApiDescription("changeDataPattern(Page)")
     @GetMapping("/changeDataPattern")
     fun changeDataPattern(
-        @RequestParam("urlPath") urlpath: String,
-        @RequestParam("dataPatternName") dataPatternName: String
+        request: HttpServletRequest,
+        @RequestParam("urlPath") urlPath: String,
+        @RequestParam("dataPatternName") dataPatternName: String,
+        @RequestParam("profile") profile: String?
     ): String {
 
-        DataPattern.setDataPattern(urlpath, dataPatternName)
+        val instanceKey = StubDataManager.getInstanceKey(profileOrInstanceKeyPrefix = profile)
+        if (profile != null && instanceKey == "") {
+            throw IllegalArgumentException("profile not registered. (profile=$profile)")
+        }
+
+        DataPattern.setDataPattern(
+            instanceKey = instanceKey,
+            urlPathOrApiName = urlPath,
+            dataPatternName = dataPatternName
+        )
         return "redirect:/management/dataPatternChanger"
     }
 
     @ApiDescription("changeAllDataPatternsToDefault(Page)")
     @GetMapping("/changeAllDataPatternsToDefault")
-    fun changeDataPatternToDefault(): String {
+    fun changeDataPatternToDefault(
+        request: HttpServletRequest,
+        @RequestParam("profile") profile: String?
+    ): String {
 
-        DataPattern.setAllUrlToDefault()
-        return "redirect:/management/dataPatternChanger"
+        val instanceKey = StubDataManager.getInstanceKey(profileOrInstanceKeyPrefix = profile)
+        if (profile != null && instanceKey == "") {
+            throw IllegalArgumentException("profile not registered. (profile=$profile)")
+        }
+
+        DataPattern.setAllUrlToDefault(instanceKey = instanceKey)
+        var redirect = "redirect:/management/dataPatternChanger"
+        if (profile.isNullOrBlank().not()) {
+            redirect += "?profile=$profile"
+        }
+        return redirect
     }
 
     @ApiDescription("cryptTool(Page)")

@@ -115,7 +115,7 @@ object StubFileNameUtil {
 
         val dataPatternName = file.parent
             .replace("\\", "/")
-            .replace(StubDataManager.instance.stubConfig.workspaceDir, "")
+            .replace(StubDataManager.defaultInstance.stubConfig.workspaceDir, "")
             .trim('/')
         return dataPatternName
     }

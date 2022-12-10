@@ -2,6 +2,7 @@ package shirates.stub.commons.controllers
 
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.client.RestTemplate
+import qmtest.stub.commons.extensions.getAgentId
 import shirates.stub.commons.annotaions.StubServer
 import shirates.stub.commons.logging.Logger
 import shirates.stub.commons.utilities.StopWatch
@@ -11,11 +12,6 @@ import javax.servlet.http.HttpServletRequest
 
 @RestController
 class StubController() {
-
-    val stubDataManager: StubDataManager
-        get() {
-            return StubDataManager.instance
-        }
 
     private var _stubInfo: StubServer? = null
 
@@ -47,12 +43,15 @@ class StubController() {
     ): StubData {
 
         val sw = StopWatch().start()
+        val instanceKeyPrefix = request.getParameter("profile") ?: request.getAgentId()
+        val stubDataManager = StubDataManager.getInstance(profileOrInstanceKeyPrefix = instanceKeyPrefix)
         val stubData = stubDataManager.getStubData(request = request)
         sw.stop()
         Logger.trace(
+            message = "stubDataManager.getStubData(request)",
+            instanceKey = stubDataManager.instanceKey,
             apiName = stubData.apiName,
             dataPattern = stubData.dataPattern,
-            message = "stubDataManager.getStubData(request)",
             elapsedMillisecond = sw.elapsedMillis
         )
 

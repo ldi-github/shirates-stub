@@ -13,7 +13,7 @@ class ApiNameUtilTest {
         val controllers = mutableListOf(ManagementApiController::class)
         ApiNameUtil.setupApiNameMap(controllers = controllers)
         // Act, Assert
-        assertThat(ApiNameUtil.ApiNameMap["/management/resetStubDataManager"]).isEqualTo("resetStubDataManager(API)")
+        assertThat(ApiNameUtil.ApiNameMap["/management/resetInstance"]).isEqualTo("resetInstance(API)")
     }
 
     @Test
@@ -23,7 +23,7 @@ class ApiNameUtilTest {
         val controllers = mutableListOf(ManagementApiController::class)
         ApiNameUtil.setupApiNameMap(controllers = controllers)
         // Act, Assert
-        assertThat(ApiNameUtil.getApiName("/management/resetStubDataManager")).isEqualTo("resetStubDataManager(API)")
+        assertThat(ApiNameUtil.getApiName("/management/resetInstance")).isEqualTo("resetInstance(API)")
     }
 
     @Test
@@ -35,9 +35,9 @@ class ApiNameUtilTest {
 
         run {
             // Act
-            val actual = ApiNameUtil.getUrlPath(urlPathOrApiName = "resetStubDataManager(API)")
+            val actual = ApiNameUtil.getUrlPath(urlPathOrApiName = "resetInstance(API)")
             // Assert
-            assertThat(actual).isEqualTo("/management/resetStubDataManager")
+            assertThat(actual).isEqualTo("/management/resetInstance")
         }
         run {
             // Act

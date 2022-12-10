@@ -89,6 +89,14 @@ object ApiNameUtil {
             return ApiNameMap.toList().first { it.second == urlPathOrApiName }.first
         }
 
+        if (urlPathOrApiName.startsWith("/")) {
+            try {
+                val url = URL("http://stub1$urlPathOrApiName")
+                return url.path
+            } catch (e: Throwable) {
+                // NOP
+            }
+        }
         if (urlPathOrApiName.startsWith("http")) {
             try {
                 // Extract urlPath

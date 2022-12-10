@@ -15,8 +15,10 @@ class StubDataManagerTest {
     @Test
     fun init() {
 
-        // Arrange, Act
-        val m = StubDataManager.setup(StubConfig(CONFIG_FILE))
+        // Arrange
+        StubConfig.setup(CONFIG_FILE)
+        // Act
+        val m = StubDataManager.setup("")
         // Assert
         assertThat(m.dataPatternMap.count()).isEqualTo(2)
         assertThat(m.startupDataPatternMap.count()).isEqualTo(m.dataPatternMap.count())
@@ -26,8 +28,10 @@ class StubDataManagerTest {
     @Test
     fun saveStartupDataPatternMap_resumeStartupDataPatternMap() {
 
-        // Arrange, Act
-        val m = StubDataManager.setup(StubConfig(CONFIG_FILE))  // saveStartupDataPatternMap is called
+        // Arrange
+        StubConfig.setup(CONFIG_FILE)
+        // Act
+        val m = StubDataManager.setup("")  // saveStartupDataPatternMap is called
         // Assert
         assertThat(m.dataPatternMap[CUSTOMER_LIST_URL]).isEqualTo("default")
         assertThat(m.startupDataPatternMap[CUSTOMER_LIST_URL]).isEqualTo("default")
@@ -55,7 +59,8 @@ class StubDataManagerTest {
 
         run {
             // Arrange
-            val m = StubDataManager.setup(StubConfig(CONFIG_FILE))
+            StubConfig.setup(CONFIG_FILE)
+            val m = StubDataManager.setup("")
             // Act
             val actual = m.getActiveDataPatternName(CUSTOMER_LIST_URL)
             // Assert
@@ -64,7 +69,7 @@ class StubDataManagerTest {
 
         run {
             // Arrange
-            val m = StubDataManager.setup(StubConfig(CONFIG_FILE))
+            val m = StubDataManager.setup("")
             // Act
             val actual = m.getActiveDataPatternName("/noexist/url")
             // Assert
@@ -75,7 +80,7 @@ class StubDataManagerTest {
     @Test
     fun setDataPatternName_getDataPatternName() {
         // Arrange
-        val m = StubDataManager.setup(StubConfig(CONFIG_FILE))
+        val m = StubDataManager.setup("")
 
         // Binds data-pattern-name to the URL
         run {
@@ -126,7 +131,8 @@ class StubDataManagerTest {
     fun getDataFilePathFromUrl() {
 
         // Arrange
-        val m = StubDataManager.setup(StubConfig(CONFIG_FILE))
+        StubConfig.setup(CONFIG_FILE)
+        val m = StubDataManager.setup("")
         val dataPatternName = "product/1"
         m.setDataPatternName(PRODUCT_LIST_URL, dataPatternName)
 
