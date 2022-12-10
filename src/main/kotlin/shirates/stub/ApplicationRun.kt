@@ -10,6 +10,7 @@ import shirates.stub.controllers.management.ManagementApiController
 import shirates.stub.controllers.management.ManagementPageController
 import shirates.stub.models.StubConfig
 import shirates.stub.models.StubDataManager
+import java.util.*
 import kotlin.reflect.KClass
 
 
@@ -47,7 +48,11 @@ fun main(args: Array<String>) {
     println(" urlValueEncode: ${config.urlValueEncode}")
     println(" outputRequestBody: ${config.outputRequestBody}")
     println()
-    println("[Stub management menu] http://stub1/")
+
+    val port = System.getenv("SERVER_PORT") ?: ResourceBundle.getBundle("application").getString("server.port")
+    val url = if (port == "80") "http://stub1/" else "http://stub1:$port/"
+
+    println("[Stub management menu] $url")
     println(" Options")
     println(" plain ... Decrypt to plain text. ex. http://stub1/customer/list?plain")
     println(" format ... Format JSON. ex. http://stub1/customer/list?plain&format")
