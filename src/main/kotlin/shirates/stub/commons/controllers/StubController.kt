@@ -49,7 +49,7 @@ class StubController() {
         sw.stop()
         Logger.trace(
             message = "stubDataManager.getStubData(request)",
-            instanceKey = stubDataManager.instanceKey,
+            profile = stubDataManager.profile,
             apiName = stubData.apiName,
             dataPattern = stubData.dataPattern,
             elapsedMillisecond = sw.elapsedMillis

@@ -73,14 +73,14 @@ class StubDataManager(var stubConfig: StubConfig) {
             instanceProfileMap[instanceKey] = profile
             Logger.info(
                 message = "instanceKey mapped to profile. ($instanceKey -> $profile)",
-                instanceKey = instanceKey
+                profile = profile
             )
 
             /**
              * Create StubManager instance for the userAgentId
              */
             if (instanceMap.containsKey(instanceKey).not()) {
-                setup(instanceKey = instanceKey)
+                setup(instanceKey = instanceKey, profile = profile)
             }
 
             saveInstanceProfileMap()
@@ -151,10 +151,17 @@ class StubDataManager(var stubConfig: StubConfig) {
                 return ""
             }
 
-            val searchWord = profileOrInstanceKeyPrefix
-            val entry =
-                instanceProfileMap.map { it }.firstOrNull() { it.value == searchWord || it.key.startsWith(searchWord) }
-            return entry?.key ?: ""
+            // matched instanceKey exactly
+            if (instanceProfileMap.containsKey(profileOrInstanceKeyPrefix)) {
+                return profileOrInstanceKeyPrefix
+            }
+            // matched profile exactly
+            if (instanceProfileMap.containsValue(profileOrInstanceKeyPrefix)) {
+                val key = instanceProfileMap.map { it }.first() { it.value == profileOrInstanceKeyPrefix }.key
+                return key
+            }
+            // default
+            return ""
         }
 
         /**
@@ -185,13 +192,13 @@ class StubDataManager(var stubConfig: StubConfig) {
         /**
          * setup
          */
-        fun setup(instanceKey: String): StubDataManager {
+        fun setup(instanceKey: String, profile: String): StubDataManager {
             val instance = StubDataManager(StubConfig.instance)
             instance.instanceKey = instanceKey
             this.instanceMap[instanceKey] = instance
             Logger.info(
-                message = "StubDataManager instance created. (instanceKey=\"$instanceKey\")",
-                instanceKey = instanceKey
+                message = "StubDataManager instance created. (instanceKey=\"$instanceKey\", profile=\"$profile)",
+                profile = profile
             )
 
             instance.setAllUrlTo("default")
@@ -208,7 +215,9 @@ class StubDataManager(var stubConfig: StubConfig) {
                 return "Has no entry."
             }
 
-            setup(instanceKey = instanceKey)
+            val instance = StubDataManager.getInstance(profileOrInstanceKeyPrefix = instanceKey)
+
+            setup(instanceKey = instanceKey, profile = instance.profile)
 
             return "Reset executed."
         }
@@ -226,6 +235,17 @@ class StubDataManager(var stubConfig: StubConfig) {
      * instanceKey
      */
     var instanceKey = ""
+
+    /**
+     * profile
+     */
+    val profile: String
+        get() {
+            if (instanceProfileMap.containsKey(instanceKey)) {
+                return instanceProfileMap[instanceKey]!!
+            }
+            return ""
+        }
 
     /**
      * defaultDataPatternName
@@ -310,7 +330,7 @@ class StubDataManager(var stubConfig: StubConfig) {
             } else {
                 dataPatternMap[urlPath] = dataPatternName
             }
-            Logger.info(message = "\"$urlPath\" -> \"$dataPatternName\"", instanceKey = this.instanceKey)
+            Logger.info(message = "\"$urlPath\" -> \"$dataPatternName\"", profile = this.profile)
         } else {
             throw IllegalArgumentException("Could not set dataPattern to urlPath. (dataPatternName=$dataPatternName, urlPath=$urlPath)")
         }
@@ -358,7 +378,7 @@ class StubDataManager(var stubConfig: StubConfig) {
      */
     fun setAllUrlTo(dataPatternName: String) {
 
-        Logger.info(message = "Setting urlPath -> dataPatternName", instanceKey = instanceKey)
+        Logger.info(message = "Setting urlPath -> dataPatternName", profile = profile)
 
         val urlList = getUrlList()
         for (urlPath in urlList) {
@@ -395,7 +415,10 @@ class StubDataManager(var stubConfig: StubConfig) {
 
         val wsDir = "${stubConfig.workspaceDir}/$dataPatternName".replace("//", "/")
         if (!File(wsDir).exists()) {
-            Logger.warn("Data pattern file not found corresponding to the url(url=$url, dataPatternName=$dataPatternName)")
+            Logger.warn(
+                "Data pattern file not found corresponding to the url(url=$url, dataPatternName=$dataPatternName)",
+                profile = this.profile
+            )
             return null
         }
         return StubFileNameUtil.findMatchedFile(wsDir, url)
@@ -441,7 +464,7 @@ class StubDataManager(var stubConfig: StubConfig) {
         if (filePath.isNullOrBlank()) {
             Logger.warn(
                 "File for the urlPath not found. (urlPath=$urlPath, dataPattern=${stubData.dataPattern})",
-                instanceKey = instanceKey,
+                profile = this.profile,
                 apiName = stubData.apiName,
                 dataPattern = stubData.dataPattern
             )
@@ -450,7 +473,7 @@ class StubDataManager(var stubConfig: StubConfig) {
         stubData.filePath = filePath
         Logger.info(
             "file=$filePath",
-            instanceKey = instanceKey,
+            profile = this.profile,
             apiName = stubData.apiName,
             dataPattern = stubData.dataPattern
         )

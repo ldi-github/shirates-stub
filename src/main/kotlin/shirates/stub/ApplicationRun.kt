@@ -33,7 +33,7 @@ fun main(args: Array<String>) {
 
     val stubConfigFile = args.firstOrNull()
     StubConfig.setup(stubConfigFile)
-    StubDataManager.setup(instanceKey = "")
+    StubDataManager.setup(instanceKey = "", profile = "")
 
     val controllers = mutableListOf<KClass<*>>()
     controllers.add(ManagementApiController::class)

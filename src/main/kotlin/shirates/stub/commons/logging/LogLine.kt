@@ -9,7 +9,7 @@ data class LogLine(
     var apiName: String = "",
     var dataPattern: String = "",
     var tid: String = "",
-    var instanceKey: String = "",
+    var profile: String = "",
     var elapsedMillisecond: Long? = null,
     var message: String = "",
     var logType: LogType = LogType.NONE
@@ -24,7 +24,7 @@ data class LogLine(
          */
         fun getHeader(): String {
 
-            return "lineNo\tlogDateTime\t[logType]\t<threadId>\t(instance)\tapiName\t{dataPattern}\telapsed(ms)\tmessage"
+            return "lineNo\tlogDateTime\t[logType]\t<threadId>\t(profile)\tapiName\t{dataPattern}\telapsed(ms)\tmessage"
         }
     }
 
@@ -36,7 +36,7 @@ data class LogLine(
         val dateTime = dateFormatrer.format(logDateTime)
         val api = if (apiName.isBlank()) "-" else apiName
         val ms = if (elapsedMillisecond == null) "-" else "(${elapsedMillisecond} ms)"
-        return "$lineNumber\t$dateTime\t[$logType]\t<$tid>\t($instanceKey)\t$api\t{$dataPattern}\t$ms\t$message"
+        return "$lineNumber\t$dateTime\t[$logType]\t<$tid>\t($profile)\t$api\t{$dataPattern}\t$ms\t$message"
     }
 
 }

@@ -90,6 +90,8 @@ class ManagementPageController {
         }
 
         model.addAttribute("list", list)
+        val profileLabel = if (profile.isNullOrBlank()) "" else "($profile)"
+        model.addAttribute("profileLabel", profileLabel)
 
         return "/management/dataPatternChanger"
     }
@@ -135,6 +137,28 @@ class ManagementPageController {
         }
         return redirect
     }
+
+    @ApiDescription("管理APIテスト画面")
+    @GetMapping("/managementApiTest")
+    fun managementApiTest(
+        model: Model,
+        @RequestParam("profile") profile: String?
+    ): String {
+
+        val m = StubDataManager.instanceProfileMap
+        val list = m.keys.map { InstanceProfile(it, m[it]!!) }.toMutableList()
+        list.add(0, InstanceProfile("", "default"))
+
+        model.addAttribute("list", list)
+        model.addAttribute("profile", profile)
+
+        return "/management/managementApiTest"
+    }
+
+    data class InstanceProfile(
+        var instanceKey: String = "",
+        var profile: String = "",
+    )
 
     @ApiDescription("cryptTool(Page)")
     @GetMapping("/cryptTool")

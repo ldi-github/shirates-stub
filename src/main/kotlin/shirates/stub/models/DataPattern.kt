@@ -25,9 +25,9 @@ object DataPattern {
         map["dataPatternName"] = dataPatternName
         val filePath = m.getDataFilePathFromUrl(urlPath)
         if (filePath == null) {
-            map["message"] = "data file not found."
+            map["message"] = "Data file not found."
         } else {
-            map["message"] = "data file found."
+            map["message"] = "Data file found."
         }
 
         return GsonBuilder().setPrettyPrinting().create().toJson(map)
@@ -78,7 +78,7 @@ object DataPattern {
         for (m in stubDataManager.dataPatternMap) {
             val urlPath = m.key
             val dataPatternName = m.value
-            Logger.info(message = "\"$urlPath\" -> \"$dataPatternName\"", instanceKey = instanceKey)
+            Logger.info(message = "\"$urlPath\" -> \"$dataPatternName\"", profile = stubDataManager.profile)
         }
     }
 

@@ -1,9 +1,9 @@
 package shirates.stub.controllers.management
 
-import com.google.gson.GsonBuilder
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import shirates.stub.commons.annotaions.ApiDescription
+import shirates.stub.commons.extensions.toJson
 import shirates.stub.commons.logging.Logger
 import shirates.stub.entities.HttpException
 import shirates.stub.models.Crypt
@@ -25,8 +25,8 @@ class ManagementApiController {
 
         StubDataManager.registerInstanceForProfile(instanceKey = instanceKey, profile = profile)
 
-        val gson = GsonBuilder().setPrettyPrinting().create()
-        return gson.toJson(StubDataManager.getInstanceJson(profileOrInstanceKeyPrefix = profile))
+        val jso = StubDataManager.getInstanceJson(profileOrInstanceKeyPrefix = profile)
+        return jso.toJson()
     }
 
     @ApiDescription("getInstanceInfo(API)")
@@ -36,8 +36,14 @@ class ManagementApiController {
         @RequestParam("profile") profile: String?
     ): String {
 
-        val gson = GsonBuilder().setPrettyPrinting().create()
-        return gson.toJson(StubDataManager.getInstanceJson(profileOrInstanceKeyPrefix = profile))
+        val instanceKey = StubDataManager.getInstanceKey(profileOrInstanceKeyPrefix = profile)
+        if (instanceKey.isBlank() && profile.isNullOrBlank().not()) {
+            val message = "No instance. (profile=$profile)"
+            Logger.warn(message, profile ?: "")
+            return messageJson(message)
+        }
+        val obj = StubDataManager.getInstanceJson(profileOrInstanceKeyPrefix = profile)
+        return obj.toJson()
     }
 
     @ApiDescription("getInstanceProfileMap(API)")
@@ -46,8 +52,12 @@ class ManagementApiController {
         request: HttpServletRequest
     ): String {
 
-        val gson = GsonBuilder().setPrettyPrinting().create()
-        return gson.toJson(StubDataManager.instanceProfileMap)
+        return StubDataManager.instanceProfileMap.toJson()
+    }
+
+    private fun messageJson(message: String): String {
+
+        return mapOf("message" to message).toJson()
     }
 
     @ApiDescription("resetInstance(API)")
@@ -59,10 +69,12 @@ class ManagementApiController {
 
         val instanceKey = StubDataManager.getInstanceKey(profileOrInstanceKeyPrefix = profile)
         if (instanceKey.isBlank() && profile.isNullOrBlank().not()) {
-            throw IllegalArgumentException("Invalid parameter. (profile=$profile)")
+            val message = "No instance. (profile=$profile)"
+            Logger.warn(message, profile ?: "")
+            return messageJson(message)
         }
         val result = StubDataManager.resetStubDataManager(instanceKey = instanceKey)
-        return "$result (profile=$profile)"
+        return messageJson("$result (profile=$profile)")
     }
 
     @ApiDescription("removeInstance(API)")
@@ -74,10 +86,12 @@ class ManagementApiController {
 
         val instanceKey = StubDataManager.getInstanceKey(profileOrInstanceKeyPrefix = profile)
         if (instanceKey.isBlank()) {
-            return "Has no entry. (profile=$profile)"
+            val message = "No instance. (profile=$profile)"
+            Logger.warn(message, profile ?: "")
+            return messageJson(message)
         }
         val result = StubDataManager.removeInstance(instanceKey = instanceKey)
-        return "$result (profile=$profile)"
+        return messageJson("$result (profile=$profile)")
     }
 
     @ApiDescription("resetDataPattern(API)")
@@ -85,13 +99,16 @@ class ManagementApiController {
     fun resetDataPattern(
         request: HttpServletRequest,
         @RequestParam("profile") profile: String?
-    ) {
+    ): String {
         val instanceKey = StubDataManager.getInstanceKey(profileOrInstanceKeyPrefix = profile)
         if (instanceKey.isBlank() && profile.isNullOrBlank().not()) {
-            throw IllegalArgumentException("Invalid parameter. (profile=$profile)")
+            val message = "No instance. (profile=$profile)"
+            Logger.warn(message, profile ?: "")
+            return messageJson(message)
         }
-        Logger.info(message = "Resetting data pattern.", instanceKey = instanceKey)
+        Logger.info(message = "Resetting data pattern.", profile = profile ?: "")
         DataPattern.resetDataPattern(instanceKey = instanceKey)
+        return messageJson("Reset done.")
     }
 
     @ApiDescription("listDataPattern(API)")
@@ -103,11 +120,12 @@ class ManagementApiController {
 
         val instanceKey = StubDataManager.getInstanceKey(profileOrInstanceKeyPrefix = profile)
         if (instanceKey.isBlank() && profile.isNullOrBlank().not()) {
-            throw IllegalArgumentException("Invalid parameter. (profile=$profile)")
+            val message = "No instance. (profile=$profile)"
+            Logger.warn(message, profile ?: "")
+            return messageJson(message)
         }
         val list = DataPattern.listDataPattern(instanceKey = instanceKey)
-        val gson = GsonBuilder().setPrettyPrinting().create()
-        return gson.toJson(list)
+        return list.toJson()
     }
 
     @ApiDescription("setDataPattern(API)")
@@ -124,7 +142,9 @@ class ManagementApiController {
 
         val instanceKey = StubDataManager.getInstanceKey(profileOrInstanceKeyPrefix = profile)
         if (instanceKey.isBlank() && profile.isNullOrBlank().not()) {
-            throw IllegalArgumentException("Invalid parameter. (profile=$profile)")
+            val message = "No instance. (profile=$profile)"
+            Logger.warn(message, profile ?: "")
+            return messageJson(message)
         }
         try {
             return DataPattern.setDataPattern(
@@ -150,9 +170,12 @@ class ManagementApiController {
 
         val instanceKey = StubDataManager.getInstanceKey(profileOrInstanceKeyPrefix = profile)
         if (instanceKey.isBlank() && profile.isNullOrBlank().not()) {
-            throw IllegalArgumentException("Invalid parameter. (profile=$profile)")
+            val message = "No instance. (profile=$profile)"
+            Logger.warn(message, profile ?: "")
+            return messageJson(message)
         }
-        return DataPattern.getDataPattern(instanceKey = instanceKey, urlPathOrApiName = urlPathOrApiName)
+        val dataPatternName = DataPattern.getDataPattern(instanceKey = instanceKey, urlPathOrApiName = urlPathOrApiName)
+        return mapOf("dataPatternName" to dataPatternName).toJson()
     }
 
     @ApiDescription("encode(API)")
@@ -174,6 +197,5 @@ class ManagementApiController {
 
         return Crypt.decrypt(targetData)
     }
-
 
 }

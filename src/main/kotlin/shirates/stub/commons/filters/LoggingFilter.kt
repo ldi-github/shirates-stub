@@ -52,7 +52,7 @@ class LoggingFilter : Filter {
             val activeDataPatternName = stubDataManager.getActiveDataPatternName(urlPath = url)
             Logger.info(
                 message = "${request.method} $url$query",
-                instanceKey = stubDataManager.instanceKey,
+                profile = stubDataManager.profile,
                 apiName = ApiNameUtil.getApiName(req.servletPath),
                 dataPattern = activeDataPatternName
             )

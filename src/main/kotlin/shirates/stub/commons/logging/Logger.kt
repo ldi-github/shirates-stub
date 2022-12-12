@@ -12,7 +12,7 @@ object Logger {
         message: String,
         logType: LogType = LogType.NONE,
         threadId: Long = Thread.currentThread().id,
-        instanceKey: String = "",
+        profile: String = "",
         apiName: String = "",
         dataPattern: String = "",
         elapsedMillisecond: Long? = null
@@ -26,7 +26,7 @@ object Logger {
                 lineNumber = lines.count() + 1,
                 logDateTime = Date(),
                 tid = "$threadId",
-                instanceKey = instanceKey,
+                profile = profile,
                 apiName = apiName,
                 dataPattern = dataPattern,
                 elapsedMillisecond = elapsedMillisecond,
@@ -51,7 +51,7 @@ object Logger {
     fun write(
         message: String,
         logType: LogType = LogType.NONE,
-        instanceKey: String = "",
+        profile: String = "",
         apiName: String = "",
         dataPattern: String = "",
         elapsedMillisecond: Long? = null
@@ -60,7 +60,7 @@ object Logger {
         val logLine = getLogLine(
             message = message,
             logType = logType,
-            instanceKey = instanceKey,
+            profile = profile,
             apiName = apiName,
             dataPattern = dataPattern,
             elapsedMillisecond = elapsedMillisecond,
@@ -82,7 +82,7 @@ object Logger {
      */
     fun trace(
         message: String,
-        instanceKey: String = "",
+        profile: String = "",
         apiName: String = "",
         dataPattern: String = "",
         elapsedMillisecond: Long? = null
@@ -93,7 +93,7 @@ object Logger {
         return write(
             message = message,
             logType = LogType.TRACE,
-            instanceKey = instanceKey,
+            profile = profile,
             apiName = apiName,
             dataPattern = dataPattern,
             elapsedMillisecond = elapsedMillisecond,
@@ -105,7 +105,7 @@ object Logger {
      */
     fun info(
         message: String,
-        instanceKey: String = "",
+        profile: String = "",
         apiName: String = "",
         dataPattern: String = "",
         elapsedMillisecond: Long? = null
@@ -114,7 +114,7 @@ object Logger {
         return write(
             message = message,
             logType = LogType.INFO,
-            instanceKey = instanceKey,
+            profile = profile,
             apiName = apiName,
             dataPattern = dataPattern,
             elapsedMillisecond = elapsedMillisecond,
@@ -126,7 +126,7 @@ object Logger {
      */
     fun warn(
         message: String,
-        instanceKey: String = "",
+        profile: String = "",
         apiName: String = "",
         dataPattern: String = "",
         elapsedMillisecond: Long? = null
@@ -135,7 +135,7 @@ object Logger {
         return write(
             message = message,
             logType = LogType.WARN,
-            instanceKey = instanceKey,
+            profile = profile,
             apiName = apiName,
             dataPattern = dataPattern,
             elapsedMillisecond = elapsedMillisecond,
@@ -147,7 +147,7 @@ object Logger {
      */
     fun error(
         message: String,
-        instanceKey: String = "",
+        profile: String = "",
         apiName: String = "",
         dataPattern: String = "",
         elapsedMillisecond: Long? = null
@@ -156,7 +156,7 @@ object Logger {
         return write(
             message = message,
             logType = LogType.ERROR,
-            instanceKey = instanceKey,
+            profile = profile,
             apiName = apiName,
             dataPattern = dataPattern,
             elapsedMillisecond = elapsedMillisecond,
