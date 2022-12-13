@@ -21,13 +21,26 @@ You can use multiple stub instances on running parallel tests.
 http://stub1/management/registerInstance?instanceKey=agentId1&profile=emulator1
 ```
 
-2. Set data pattern using setDataPattern(API).
+2. Confirm registered information.
 
 ```
-http://stub1/management/setDataPattern?urlPath=/product/list&dataPatternName=product/02
+http://stub1/management/getInstanceInfo?profile=emulator1
 ```
 
-3. Test you app.
+```json
+{
+  "instanceKey": "agentId1",
+  "profile": "emulator1"
+}
+```
+
+3. Set data pattern using setDataPattern(API).
+
+```
+http://stub1/management/setDataPattern?urlPath=/product/list&dataPatternName=product/02&profile=emulator1
+```
+
+4. Test you app (with running test code).
 
 <br>
 

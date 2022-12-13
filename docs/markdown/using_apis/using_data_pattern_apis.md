@@ -67,7 +67,7 @@ http://stub1/management/setDataPattern?urlPathOrApiName=/product/list&dataPatter
 {
   "urlPath": "/product/list",
   "dataPatternName": "product/02",
-  "message": "data file found."
+  "message": "Data file found."
 }
 ```
 
@@ -87,7 +87,7 @@ http://stub1/management/setDataPattern?urlPathOrApiName=ProductList&dataPatternN
 {
   "urlPath": "/product/list",
   "dataPatternName": "product/02",
-  "message": "data file found."
+  "message": "Data file found."
 }
 ```
 
@@ -118,7 +118,9 @@ http://stub1/management/getDataPattern?urlPathOrApiName=/product/list
 ### Response
 
 ```
-product/02
+{
+  "dataPatternName": "product/02"
+}
 ```
 
 <hr>
@@ -134,7 +136,9 @@ http://stub1/management/getDataPattern?urlPathOrApiName=ProductList
 ### Response
 
 ```
-product/02
+{
+  "dataPatternName": "product/02"
+}
 ```
 
 <br>
