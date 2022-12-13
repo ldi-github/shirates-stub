@@ -3,6 +3,7 @@ package shirates.stub
 import org.springframework.boot.Banner
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
+import shirates.shirates_stub.BuildConfig
 import shirates.stub.commons.annotaions.StubServer
 import shirates.stub.commons.logging.Logger
 import shirates.stub.commons.utilities.ApiNameUtil
@@ -24,10 +25,12 @@ fun main(args: Array<String>) {
         setLogStartupInfo(false)
     }
 
+    val version = BuildConfig.version
+
     println()
     println("----------------------------------------------------------------------------------------------------")
     println("/// ")
-    println("/// shirates-stub - a stub tool for testing mobile apps -")
+    println("/// shirates-stub [$version] - a stub tool for testing mobile apps -")
     println("/// ")
     println("----------------------------------------------------------------------------------------------------")
 

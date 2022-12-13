@@ -8,6 +8,8 @@ plugins {
 
     id("java")
     id("war")
+
+    id("com.github.gmazzo.buildconfig") version "2.0.2"
 }
 
 group = "shirates"
@@ -67,6 +69,19 @@ dependencies {
     testImplementation("commons-validator:commons-validator:1.7")
 
     testImplementation("io.mockk:mockk:1.12.0")
+}
+
+/**
+ * buildConfig
+ *
+ * gradle-buildconfig-plugin
+ * https://github.com/gmazzo/gradle-buildconfig-plugin
+ */
+buildConfig {
+    buildConfigField("String", "appName", "\"${project.name}\"")
+    buildConfigField("String", "version", "\"${project.version}\"")
+    buildConfigField("String", "packageName", "\"${project.group}\"")
+    buildConfigField("String", "charset", "\"UTF-8\"")
 }
 
 tasks.withType<Test> {
