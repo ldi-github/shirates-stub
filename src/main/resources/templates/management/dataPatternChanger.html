@@ -5,18 +5,22 @@
     <title>Data pattern changer</title>
     <style>
     </style>
-    <link rel="stylesheet" href="./styles/dataPatternChanger.css">
+    <link rel="stylesheet" href="/management/styles/dataPatternChanger.css">
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <script type="text/javascript" src="./compositeLocalStorage.js"></script>
-    <script type="text/javascript" src="./dataPatternChanger.js"></script>
+    <script type="text/javascript" src="/management/compositeLocalStorage.js"></script>
+    <script type="text/javascript" src="/management/dataPatternChanger.js"></script>
 
 </head>
 <body>
 <header>
     <h1>
-        Data pattern changer
+        Data pattern changer <span th:text="${profileLabel}"></span>
     </h1>
     <div class="display-table">
+        <div class="form-border display-table-cell">
+            <span class="label-margin-right">Reset</span>
+            <a id="reset" href="/management/changeAllDataPatternsToDefault"><b>[default]</b></a>
+        </div>
         <div class="space-16px display-table-cell"></div>
         <div class="form-border display-table-cell">
             <span class="label-margin-right">Grouping</span>
@@ -29,6 +33,9 @@
             <button id="bookmarkFilterButton"
                     class="display-table-cell label-margin-right bookmark-filter-button">OFF
             </button>
+        </div>
+        <div>
+            <a class="label-margin-left" href="/" target="_blank">shirates-stub</a>
         </div>
     </div>
 </header>

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>Management API Test</title>
+
+    <link rel="stylesheet" href="/management/styles/dataPatternChanger.css">
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script type="text/javascript" src="/management/managementApiTest.js"></script>
+
+    <style>
+    </style>
+</head>
+<body>
+
+<h1>[shirates-stub] Management API Test</h1>
+
+<h3>Select instance</h3>
+
+<table id="instance-profile-table" class="table">
+    <tr class="headerrow">
+        <th>instanceKey</th>
+        <th>profile</th>
+        <th>select</th>
+    </tr>
+    <tr th:each="item:${list}"
+        data-instance-profile-row
+        th:data-instance-key="${item.instanceKey}"
+        th:data-profile="${item.profile}">
+        <td class="form-border display-table-cell">
+            <span th:text="${item.instanceKey}"></span>
+        </td>
+        <td class="form-border display-table-cell">
+            <span th:text="${item.profile}"></span>
+        </td>
+        <td class="form-border display-table-cell">
+            <button id="select-button" class="display-table-cell bookmark-filter-button" data-select-button>select
+            </button>
+        </td>
+    </tr>
+</table>
+
+<br>
+<br>
+
+<h3>Test</h3>
+
+<table id="api-table" class="table">
+    <tr class="headerrow">
+        <th>Screen/API</th>
+        <th>URL path</th>
+    </tr>
+    <tr>
+        <td class="form-border display-table-cell">Data pattern changer screen</td>
+        <td class="form-border display-table-cell"><a id="data-pattern-changer" href="/management/dataPatternChanger">/management/dataPatternChanger</a>
+        </td>
+    </tr>
+    <tr>
+        <td class="form-border display-table-cell">Register instane API</td>
+        <td class="form-border display-table-cell">
+            <span>/management/registerInstance?instanceKey=</span>
+            <input type="text" id="input-instanceKey" name="input-instanceKey">&amp;profile=
+            <input type="text" id="input-profile" name="input-profile">
+            <button id="register-instance-button" class="label-margin-left">Register</button>
+        </td>
+    </tr>
+    <tr>
+        <td class="form-border display-table-cell">Get instance profile map API</td>
+        <td class="form-border display-table-cell">
+            <a id="get-instance-profile-map"
+               href="/management/getInstanceProfileMap">/management/getInstanceProfileMap</a>
+        </td>
+    </tr>
+    <tr>
+        <td class="form-border display-table-cell">Get instance info API</td>
+        <td class="form-border display-table-cell">
+            <a id="get-instance-info" href="/management/getInstanceInfo">/management/getInstanceInfo</a>
+        </td>
+    </tr>
+    <tr>
+        <td class="form-border display-table-cell">Reset instance API</td>
+        <td class="form-border display-table-cell">
+            <a id="reset-instance" href="/management/resetInstance">/management/resetInstance</a>
+        </td>
+    </tr>
+    <tr>
+        <td class="form-border display-table-cell">Remove instance API</td>
+        <td class="form-border display-table-cell">
+            <a id="remove-instance" href="/management/removeInstance">/management/removeInstance</a>
+        </td>
+    </tr>
+</table>
+
+<br>
+
+
+</body>
+</html>

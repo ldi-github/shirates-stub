@@ -2,6 +2,7 @@
   <configuration default="false" name="ApplicationRunKt" type="JetRunConfigurationType" nameIsGenerated="true">
     <option name="MAIN_CLASS_NAME" value="shirates.stub.ApplicationRunKt" />
     <module name="shirates-stub.main" />
+    <shortenClasspath name="NONE" />
     <method v="2">
       <option name="Make" enabled="true" />
     </method>

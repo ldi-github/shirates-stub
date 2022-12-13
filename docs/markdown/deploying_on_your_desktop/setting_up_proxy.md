@@ -1,8 +1,8 @@
 # Setting up proxy
 
-shirates-stub is designed for single user, so you should run stub application on your machine.
+You can run stub application on your machine.
 
-Assuming the app under test is built to access http://stub1/api1, the hostname "**stub1**" needs to be resolved to the
+Assuming the app under test is built to access http://stub1/api1, the hostname "**stub1**" should to be resolved to the
 IP address of your machine.
 
 You should set up **proxy server** and **hosts** on your machine as follows.

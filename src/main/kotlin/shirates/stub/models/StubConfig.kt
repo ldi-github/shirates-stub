@@ -75,6 +75,11 @@ class StubConfig(stubConfigFile: String? = null) {
     var urlValueEncode = false
 
     /**
+     * agentIdHeaderName
+     */
+    var agentIdHeaderName = ""
+
+    /**
      * workspaceDir
      */
     val workspaceDir: String
@@ -140,6 +145,11 @@ class StubConfig(stubConfigFile: String? = null) {
         // urlValueEncode
         if (jso.containsKey("urlValueEncode")) {
             urlValueEncode = jso.getValue("urlValueEncode") == "true"
+        }
+
+        // agentIdHeaderName
+        if(jso.containsKey("agentIdHeaderName")){
+            agentIdHeaderName = jso.getValue("agentIdHeaderName").toString()
         }
 
         workspaceName = jso.get("workspaceName") as String + ""

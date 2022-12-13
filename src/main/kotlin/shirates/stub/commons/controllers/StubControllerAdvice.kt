@@ -23,7 +23,7 @@ class StubControllerAdvice {
     }
 
     @ExceptionHandler(Exception::class)
-    fun handleException(): ResponseEntity<String> {
-        return ResponseEntity("unexpected exception.", HttpStatus.INTERNAL_SERVER_ERROR)
+    fun handleException(e: Exception): ResponseEntity<String> {
+        return ResponseEntity(e.message ?: "unexpected exception.", HttpStatus.INTERNAL_SERVER_ERROR)
     }
 }

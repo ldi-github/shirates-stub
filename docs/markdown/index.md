@@ -29,6 +29,12 @@
 
 - [Setting up proxy](deploying_on_your_desktop/setting_up_proxy.md)
 
+## Using APIs
+
+- [Using data pattern APIs](using_apis/using_data_pattern_apis.md)
+- [Using APIs for multiple instances](using_apis/using_apis_for_multiple_instances.md)
+- [Using multiple instances](using_apis/using_multiple_instances.md)
+
 ### Security Notice
 
 **Do not** deploy shirates-stub on public network (cloud service) without security considerations.

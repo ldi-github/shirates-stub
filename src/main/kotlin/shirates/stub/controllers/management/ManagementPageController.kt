@@ -9,6 +9,7 @@ import shirates.stub.commons.annotaions.ApiDescription
 import shirates.stub.commons.utilities.ApiNameUtil
 import shirates.stub.models.DataPattern
 import shirates.stub.models.StubDataManager
+import javax.servlet.http.HttpServletRequest
 
 @Controller
 @RequestMapping("/management")
@@ -57,12 +58,20 @@ class ManagementPageController {
 
     @ApiDescription("dataPatternChanger(Page)")
     @GetMapping("/dataPatternChanger")
-    fun dataPatternChanger(model: Model): String {
+    fun dataPatternChanger(
+        request: HttpServletRequest,
+        model: Model,
+        @RequestParam("profile") profile: String?
+    ): String {
 
-        val stubDataManager = StubDataManager.instance
+        val instanceKey = StubDataManager.getInstanceKey(profileOrInstanceKeyPrefix = profile)
+        if (profile != null && instanceKey == "") {
+            throw IllegalArgumentException("profile not registered. (profile=$profile)")
+        }
+        val stubDataManager = StubDataManager.getInstance(profileOrInstanceKeyPrefix = instanceKey)
         val list = mutableListOf<DataPatternSettingItem>()
 
-        val group = stubDataManager.getUrlDataPatternList().groupBy { it.urlPath }
+        val group = stubDataManager.getUrlDataPatternList(forceRefresh = true).groupBy { it.urlPath }
         val keys = group.keys
         for ((groupName, items) in group) {
             items.forEachIndexed { index, item ->
@@ -81,6 +90,8 @@ class ManagementPageController {
         }
 
         model.addAttribute("list", list)
+        val profileLabel = if (profile.isNullOrBlank()) "" else "($profile)"
+        model.addAttribute("profileLabel", profileLabel)
 
         return "/management/dataPatternChanger"
     }
@@ -88,21 +99,66 @@ class ManagementPageController {
     @ApiDescription("changeDataPattern(Page)")
     @GetMapping("/changeDataPattern")
     fun changeDataPattern(
-        @RequestParam("urlPath") urlpath: String,
-        @RequestParam("dataPatternName") dataPatternName: String
+        request: HttpServletRequest,
+        @RequestParam("urlPath") urlPath: String,
+        @RequestParam("dataPatternName") dataPatternName: String,
+        @RequestParam("profile") profile: String?
     ): String {
 
-        DataPattern.setDataPattern(urlpath, dataPatternName)
+        val instanceKey = StubDataManager.getInstanceKey(profileOrInstanceKeyPrefix = profile)
+        if (profile != null && instanceKey == "") {
+            throw IllegalArgumentException("profile not registered. (profile=$profile)")
+        }
+
+        DataPattern.setDataPattern(
+            instanceKey = instanceKey,
+            urlPathOrApiName = urlPath,
+            dataPatternName = dataPatternName
+        )
         return "redirect:/management/dataPatternChanger"
     }
 
     @ApiDescription("changeAllDataPatternsToDefault(Page)")
     @GetMapping("/changeAllDataPatternsToDefault")
-    fun changeDataPatternToDefault(): String {
+    fun changeDataPatternToDefault(
+        request: HttpServletRequest,
+        @RequestParam("profile") profile: String?
+    ): String {
 
-        DataPattern.setAllUrlToDefault()
-        return "redirect:/management/dataPatternChanger"
+        val instanceKey = StubDataManager.getInstanceKey(profileOrInstanceKeyPrefix = profile)
+        if (profile != null && instanceKey == "") {
+            throw IllegalArgumentException("profile not registered. (profile=$profile)")
+        }
+
+        DataPattern.setAllUrlToDefault(instanceKey = instanceKey)
+        var redirect = "redirect:/management/dataPatternChanger"
+        if (profile.isNullOrBlank().not()) {
+            redirect += "?profile=$profile"
+        }
+        return redirect
     }
+
+    @ApiDescription("管理APIテスト画面")
+    @GetMapping("/managementApiTest")
+    fun managementApiTest(
+        model: Model,
+        @RequestParam("profile") profile: String?
+    ): String {
+
+        val m = StubDataManager.instanceProfileMap
+        val list = m.keys.map { InstanceProfile(it, m[it]!!) }.toMutableList()
+        list.add(0, InstanceProfile("", "default"))
+
+        model.addAttribute("list", list)
+        model.addAttribute("profile", profile)
+
+        return "/management/managementApiTest"
+    }
+
+    data class InstanceProfile(
+        var instanceKey: String = "",
+        var profile: String = "",
+    )
 
     @ApiDescription("cryptTool(Page)")
     @GetMapping("/cryptTool")

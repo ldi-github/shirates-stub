@@ -3,33 +3,41 @@
     padding: 10px;
     margin-right: 16px;
 }
+
 .display-table {
     display: table;
 }
+
 .display-table-cell {
     display: table-cell;
 }
+
 .space-16px {
     width: 16px;
 }
+
+.label-margin-left {
+    margin-left: 16px;
+}
+
 .label-margin-right {
     margin-right: 16px;
 }
 
 body {
-  margin: 0;
-  padding: 16px;
+    margin: 0;
+    padding: 16px;
 }
 
 header {
-  position: fixed;
-  top: 0px;
-  width: 100%;
-  height: 160px;
-  margin: 0;
-  padding: 8px;
-  background: white;
-  z-index: 10;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    height: 160px;
+    margin: 0;
+    padding: 8px;
+    background: white;
+    z-index: 10;
 }
 
 .content {
@@ -57,7 +65,7 @@ header {
 
 .headerrow {
     position: sticky;
-    top: 0px;
+    top: 0;
     color: white;
     background: dimgray;
 }

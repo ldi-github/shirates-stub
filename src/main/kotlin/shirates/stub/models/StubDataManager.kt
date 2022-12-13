@@ -1,10 +1,12 @@
 package shirates.stub.models
 
 import com.google.gson.GsonBuilder
+import com.google.gson.JsonObject
 import org.springframework.boot.json.GsonJsonParser
 import org.springframework.http.HttpStatus
 import shirates.stub.commons.logging.Logger
 import shirates.stub.commons.utilities.ApiNameUtil
+import shirates.stub.commons.utilities.FileLockUtility
 import shirates.stub.commons.utilities.StubFileNameUtil
 import shirates.stub.commons.utilities.UrlValueEncodeUtil
 import shirates.stub.entities.HttpException
@@ -14,6 +16,7 @@ import shirates.stub.entities.UrlDataPattern
 import java.io.File
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
+import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.AbstractMap.SimpleEntry
 import javax.servlet.http.HttpServletRequest
@@ -25,23 +28,198 @@ class StubDataManager(var stubConfig: StubConfig) {
 
     companion object {
 
-        lateinit var instance: StubDataManager
+        /**
+         * instanceMap
+         */
+        val instanceMap = mutableMapOf<String, StubDataManager>()
+
+        /**
+         * instanceProfileMap
+         */
+        val instanceProfileMap = mutableMapOf<String, String>()
+
+        /**
+         * defaultInstance
+         */
+        val defaultInstance: StubDataManager
+            get() {
+                return instanceMap[""]!!
+            }
+
+        /**
+         * registerInstanceForProfile
+         */
+        fun registerInstanceForProfile(instanceKey: String, profile: String) {
+
+            if (instanceKey.isBlank()) {
+                throw IllegalArgumentException("instanceKey=$instanceKey")
+            }
+            if (profile.isBlank()) {
+                throw IllegalArgumentException("profile=$profile")
+            }
+
+            /**
+             * Delete profile entries
+             */
+            for (key in instanceProfileMap.keys.toList()) {
+                if (instanceProfileMap[key] == profile) {
+                    instanceProfileMap.remove(key)
+                }
+            }
+
+            /**
+             * Map instanceKey to profile
+             */
+            instanceProfileMap[instanceKey] = profile
+            Logger.info(
+                message = "instanceKey mapped to profile. ($instanceKey -> $profile)",
+                profile = profile
+            )
+
+            /**
+             * Create StubManager instance for the userAgentId
+             */
+            if (instanceMap.containsKey(instanceKey).not()) {
+                setup(instanceKey = instanceKey, profile = profile)
+            }
+
+            saveInstanceProfileMap()
+        }
+
+        private fun saveInstanceProfileMap() {
+
+            val gson = GsonBuilder().setPrettyPrinting().create()
+            val file = "data/temp/instanceProfileMap.json"
+            FileLockUtility.lockFile(Path.of(file)) {
+                val json = gson.toJson(instanceProfileMap)
+                File("data/temp/instanceProfileMap.json").writeText(text = json)
+            }
+        }
+
+        /**
+         * removeInstance
+         */
+        fun removeInstance(instanceKey: String): String {
+
+            if (instanceMap.containsKey(instanceKey).not()) {
+                return "Has no entry."
+            }
+            instanceMap.remove(instanceKey)
+
+            if (instanceProfileMap.containsKey(instanceKey).not()) {
+                return "Has no entry."
+            }
+            instanceProfileMap.remove(instanceKey)
+
+            saveInstanceProfileMap()
+
+            return "Removed."
+        }
+
+        /**
+         * registerInstanceFromFile
+         */
+        fun registerInstanceFromFile(path: Path = Path.of("data/temp/instanceProfileMap.json")) {
+
+            if (Files.exists(path).not()) {
+                return
+            }
+            Logger.info("Loading instanceProfileMap from $path")
+
+            val json = File(path.toUri()).readText()
+            val map = GsonJsonParser().parseMap(json)
+            for (instanceKey in map.keys) {
+                val profile = map[instanceKey].toString()
+                registerInstanceForProfile(instanceKey = instanceKey, profile = profile)
+            }
+
+            Logger.info("instanceProfileMap loaded from $path")
+            Logger.info("[instanceKey]=profile")
+            for (key in map.keys) {
+                val value = map[key].toString()
+                Logger.info("[\"$key\"]=\"$value\"")
+                instanceProfileMap[key] = value
+            }
+        }
+
+        /**
+         * getInstanceKey
+         */
+        fun getInstanceKey(profileOrInstanceKeyPrefix: String?): String {
+
+            if (profileOrInstanceKeyPrefix.isNullOrBlank()) {
+                return ""
+            }
+
+            // matched instanceKey exactly
+            if (instanceProfileMap.containsKey(profileOrInstanceKeyPrefix)) {
+                return profileOrInstanceKeyPrefix
+            }
+            // matched profile exactly
+            if (instanceProfileMap.containsValue(profileOrInstanceKeyPrefix)) {
+                val key = instanceProfileMap.map { it }.first() { it.value == profileOrInstanceKeyPrefix }.key
+                return key
+            }
+            // default
+            return ""
+        }
+
+        /**
+         * getInstanceJson
+         */
+        fun getInstanceJson(profileOrInstanceKeyPrefix: String?): JsonObject {
+
+            val instance = getInstance(profileOrInstanceKeyPrefix = profileOrInstanceKeyPrefix)
+            val profile = instanceProfileMap[instance.instanceKey]
+
+            val jso = JsonObject()
+            jso.addProperty("instanceKey", instance.instanceKey)
+            jso.addProperty("profile", profile)
+
+            return jso
+        }
+
+        /**
+         * getInstance
+         */
+        fun getInstance(profileOrInstanceKeyPrefix: String?): StubDataManager {
+
+            val instanceKey = getInstanceKey(profileOrInstanceKeyPrefix = profileOrInstanceKeyPrefix)
+
+            return instanceMap[instanceKey]!!
+        }
 
         /**
          * setup
          */
-        fun setup(stubConfig: StubConfig): StubDataManager {
-            this.instance = StubDataManager(stubConfig)
-            this.instance.setAllUrlTo("default")
-            this.instance.saveStartupDataPatternMap()
-            return this.instance
+        fun setup(instanceKey: String, profile: String): StubDataManager {
+            val instance = StubDataManager(StubConfig.instance)
+            instance.instanceKey = instanceKey
+            this.instanceMap[instanceKey] = instance
+            Logger.info(
+                message = "StubDataManager instance created. (instanceKey=\"$instanceKey\", profile=\"$profile)",
+                profile = profile
+            )
+
+            instance.setAllUrlTo("default")
+            instance.saveStartupDataPatternMap()
+            return instance
         }
 
         /**
          * resetStubDataManager
          */
-        fun resetStubDataManager() {
-            setup(StubConfig.instance)
+        fun resetStubDataManager(instanceKey: String): String {
+
+            if (instanceMap.containsKey(instanceKey).not()) {
+                return "Has no entry."
+            }
+
+            val instance = StubDataManager.getInstance(profileOrInstanceKeyPrefix = instanceKey)
+
+            setup(instanceKey = instanceKey, profile = instance.profile)
+
+            return "Reset executed."
         }
     }
 
@@ -52,6 +230,22 @@ class StubDataManager(var stubConfig: StubConfig) {
     /**
      * properties
      */
+
+    /**
+     * instanceKey
+     */
+    var instanceKey = ""
+
+    /**
+     * profile
+     */
+    val profile: String
+        get() {
+            if (instanceProfileMap.containsKey(instanceKey)) {
+                return instanceProfileMap[instanceKey]!!
+            }
+            return ""
+        }
 
     /**
      * defaultDataPatternName
@@ -90,7 +284,7 @@ class StubDataManager(var stubConfig: StubConfig) {
      */
 
     /**
-     * dsaveStartupDataPatternMap
+     * saveStartupDataPatternMap
      */
     fun saveStartupDataPatternMap() {
 
@@ -136,7 +330,7 @@ class StubDataManager(var stubConfig: StubConfig) {
             } else {
                 dataPatternMap[urlPath] = dataPatternName
             }
-            Logger.info("\"$urlPath\" -> \"$dataPatternName\"")
+            Logger.info(message = "\"$urlPath\" -> \"$dataPatternName\"", profile = this.profile)
         } else {
             throw IllegalArgumentException("Could not set dataPattern to urlPath. (dataPatternName=$dataPatternName, urlPath=$urlPath)")
         }
@@ -163,16 +357,20 @@ class StubDataManager(var stubConfig: StubConfig) {
         return list
     }
 
+    private var _urlDataPatternList: List<UrlDataPattern>? = null
+
     /**
      * getUrlDataPatternList
      */
-    fun getUrlDataPatternList(): List<UrlDataPattern> {
+    fun getUrlDataPatternList(forceRefresh: Boolean = false): List<UrlDataPattern> {
 
-        val list = getStubFileList()
-            .map { UrlDataPattern(it.urlPath, it.dataPatternName) }
-            .distinctBy { it }
-            .sortedBy { "${it.urlPath}|${it.dataPatternName}" }
-        return list
+        if (_urlDataPatternList == null || forceRefresh) {
+            _urlDataPatternList = getStubFileList()
+                .map { UrlDataPattern(it.urlPath, it.dataPatternName) }
+                .distinctBy { it }
+                .sortedBy { "${it.urlPath}|${it.dataPatternName}" }
+        }
+        return _urlDataPatternList!!
     }
 
     /**
@@ -180,7 +378,7 @@ class StubDataManager(var stubConfig: StubConfig) {
      */
     fun setAllUrlTo(dataPatternName: String) {
 
-        Logger.info("Setting urlPath -> dataPatternName")
+        Logger.info(message = "Setting urlPath -> dataPatternName", profile = profile)
 
         val urlList = getUrlList()
         for (urlPath in urlList) {
@@ -217,7 +415,10 @@ class StubDataManager(var stubConfig: StubConfig) {
 
         val wsDir = "${stubConfig.workspaceDir}/$dataPatternName".replace("//", "/")
         if (!File(wsDir).exists()) {
-            Logger.warn("Data pattern file not found corresponding to the url(url=$url, dataPatternName=$dataPatternName)")
+            Logger.warn(
+                "Data pattern file not found corresponding to the url(url=$url, dataPatternName=$dataPatternName)",
+                profile = this.profile
+            )
             return null
         }
         return StubFileNameUtil.findMatchedFile(wsDir, url)
@@ -235,7 +436,10 @@ class StubDataManager(var stubConfig: StubConfig) {
         val plainAndFormat = parameterNames.contains("0")
         val hasFormat = parameterNames.contains("format") || plainAndFormat
         val asPlain = parameterNames.contains("plain") || plainAndFormat
-        val stubData = getStubData(urlPath = urlPath, format = hasFormat)
+        val stubData = getStubData(
+            urlPath = urlPath,
+            format = hasFormat
+        )
 
         if (asPlain) {
             stubData.encData = stubData.data
@@ -254,14 +458,25 @@ class StubDataManager(var stubConfig: StubConfig) {
     ): StubData {
         val stubData = StubData()
 
+        stubData.apiName = ApiNameUtil.getApiName(urlPath)
+        stubData.dataPattern = getActiveDataPatternName(urlPath)
         val filePath = getDataFilePathFromUrl(urlPath)
         if (filePath.isNullOrBlank()) {
+            Logger.warn(
+                "File for the urlPath not found. (urlPath=$urlPath, dataPattern=${stubData.dataPattern})",
+                profile = this.profile,
+                apiName = stubData.apiName,
+                dataPattern = stubData.dataPattern
+            )
             return stubData
         }
         stubData.filePath = filePath
-        stubData.apiName = ApiNameUtil.getApiName(urlPath)
-        stubData.dataPattern = getActiveDataPatternName(urlPath)
-        Logger.info("file=$filePath", apiName = stubData.apiName, dataPattern = stubData.dataPattern)
+        Logger.info(
+            "file=$filePath",
+            profile = this.profile,
+            apiName = stubData.apiName,
+            dataPattern = stubData.dataPattern
+        )
 
         var text = Files.readString(Paths.get(filePath), StandardCharsets.UTF_8)
 
