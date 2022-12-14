@@ -125,7 +125,7 @@ lineNo	logDateTime	[logType]	<threadId>	(profile)	apiName	{dataPattern}	elapsed(
 21	2022/12/13 20:38:14.040	[INFO]	<19>	()	-	{}	-	["/management/changeAllDataPatternsToDefault"]="changeAllDataPatternsToDefault(Page)"
 22	2022/12/13 20:38:14.040	[INFO]	<19>	()	-	{}	-	["/management/dataPatternChanger"]="dataPatternChanger(Page)"
 23	2022/12/13 20:38:14.040	[INFO]	<19>	()	-	{}	-	["/management/cryptTool"]="cryptTool(Page)"
-24	2022/12/13 20:38:14.040	[INFO]	<19>	()	-	{}	-	["/management/managementApiTest"]="管理APIテスト画面"
+24	2022/12/13 20:38:14.040	[INFO]	<19>	()	-	{}	-	["/management/managementApiTest"]="managementApiTest(Page)"
 25	2022/12/13 20:38:14.040	[INFO]	<19>	()	-	{}	-	["/customer/list"]="CustomerList"
 26	2022/12/13 20:38:14.041	[INFO]	<19>	()	-	{}	-	["/product/list"]="ProductList"
 27	2022/12/13 20:38:14.041	[INFO]	<19>	()	-	{}	-	["/supplier/list"]="SupplierList"

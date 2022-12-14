@@ -138,7 +138,7 @@ class ManagementPageController {
         return redirect
     }
 
-    @ApiDescription("管理APIテスト画面")
+    @ApiDescription("managementApiTest(Page)")
     @GetMapping("/managementApiTest")
     fun managementApiTest(
         model: Model,
