@@ -13,7 +13,7 @@ plugins {
 }
 
 group = "shirates"
-version = "2.0.0"
+version = "2.0.1"
 java.sourceCompatibility = JavaVersion.VERSION_11
 
 val developmentOnly by configurations.creating
